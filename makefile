@@ -1,6 +1,6 @@
 OUT = gote
 VERSION = `git describe --tags --long --dirty`
-LDFLAGS = -ldflags "-X main.Version=$(VERSION)"
+LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
 
 .PHONY: all
 .SILENT:
@@ -15,6 +15,9 @@ run:
 
 clean:
 	rm -rf ./$(OUT)
+
+debug:
+	@echo "build version will be $(VERSION)"
 
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm

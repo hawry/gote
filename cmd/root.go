@@ -23,6 +23,7 @@ import (
 )
 
 var cfgFile string
+var printBuildVersion bool
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -31,7 +32,9 @@ var RootCmd = &cobra.Command{
 	Long:  ``,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	// Run: func(cmd *cobra.Command, args []string) {
+	// 	log.Printf("standard command")
+	// },
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
