@@ -15,8 +15,9 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/hawry/gote/config"
 	"github.com/spf13/cobra"
 )
 
@@ -31,8 +32,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: Work your own magic here
-		fmt.Println("note called")
+		config, err := config.LoadDefault()
+		if err != nil {
+			log.Printf("error: could not open configuration file (%v)", err)
+			return
+		}
+		log.Printf("configuration: %+v", config)
 	},
 }
 
