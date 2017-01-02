@@ -1,35 +1,36 @@
 package config
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 
-	gcfg "gopkg.in/gcfg.v1"
 	yaml "gopkg.in/yaml.v2"
 )
 
 //Configuration describes a configuration for a repository
 type Configuration struct {
-	AccessToken string
-	Remote      string
-	Username    string
-	Repository  string
+	AccessToken string `yaml:"access_token"`
+	Remote      string `yaml:"remote,omitempty"`
+	User        string `yaml:"user,omitempty"`
+	Repository  string `yaml:"repository,omitempty"`
 }
 
 const (
 	//DefaultConfigName is the default name of the Gote configuration file that should exist in the repository root
 	DefaultConfigName = ".gote"
+	tokenPlaceholder  = "<please insert your personal access token here>"
+	rawConfig         = `access_token: %s
+remote: %s
+user: %s
+repository: %s`
 )
 
 //Default creates and returns a default configuration (used by initialization command)
 func Default() (Configuration, error) {
-	var defaultConfig = `github:
-    access_token: <insert your github access token here>
-    remote: %s
-  `
 	if configExists() {
 		return Configuration{}, fmt.Errorf("configuration already exists")
 	}
@@ -42,7 +43,8 @@ func Default() (Configuration, error) {
 	if !b {
 		return Configuration{}, &notGitDirError{arg: wd}
 	}
-	defaultConfig = fmt.Sprintf(defaultConfig, r)
+	usr, rep := parseRemoteInformation(r)
+	defaultConfig := fmt.Sprintf(rawConfig, askForAccessToken(), r, usr, rep)
 
 	f, err := os.Create(DefaultConfigName)
 	if err != nil {
@@ -52,6 +54,21 @@ func Default() (Configuration, error) {
 		return Configuration{}, err
 	}
 	return Unmarshal([]byte(defaultConfig))
+}
+
+//askForAccessToken will ask the user to provide their personal access token for the init-process. If they only give an empty line, it will return a default placeholder instead
+func askForAccessToken() string {
+	r := bufio.NewReader(os.Stdin)
+	fmt.Print("Please provide the personal access token for this repository (just press enter if you wish to do this manually later): ")
+	txt, err := r.ReadString('\n')
+	if err != nil {
+		return tokenPlaceholder
+	}
+	txt = strings.TrimSpace(txt)
+	if len(txt) > 0 {
+		return txt
+	}
+	return tokenPlaceholder
 }
 
 //Load tries to load a given configuration file
@@ -81,29 +98,10 @@ func LoadDefault() (Configuration, error) {
 	return Load(DefaultConfigName)
 }
 
+//configExists will make a quick check if the configuration file already exists and return true if that is the case
 func configExists() bool {
 	if _, err := os.Stat(DefaultConfigName); os.IsNotExist(err) {
 		return false
 	}
 	return true
-}
-
-//isGitDir will return true if the specified directory is a git-repository and if so, will also return the remote name
-func isGitDir(path string) (bool, string) {
-	gitConfig := struct {
-		Remote map[string]*struct {
-			URL string
-		}
-	}{}
-	err := gcfg.ReadFileInto(&gitConfig, fmt.Sprintf("%s/.git/config", strings.TrimSuffix(path, "/")))
-	err = gcfg.FatalOnly(err)
-	if err != nil {
-		//Assume directory isn't a git repository since a fatal error was thrown
-		return false, ""
-	}
-	//If remote origin can be found, return the remote address of that remote
-	if val, v := gitConfig.Remote["origin"]; v {
-		return true, val.URL
-	}
-	return false, ""
 }
