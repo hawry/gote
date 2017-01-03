@@ -7,6 +7,14 @@ The tool relies on the use of personal access tokens with read and write access 
 Visit [the releases][3] page to download the source, or pre-compiled binaries for Linux and Windows.
 
 ## Usage
+
+Make sure you are in an initialized git-repository root folder. Then run the `init`-command in the project root to bootstrap gote and answer the access question. This command will fetch as much information as it can from your `.git/config`. If you wish to enter the information manually, use the `--interactive` flag.
+
+```
+/my/awesome/project$ gote init
+Please provide the personal access token for this repository (just press enter if you wish to do this manually later):
+```
+
 ```
 $ gote note
 > The brown fox jumps over something something dark side. I think we have cookies!
@@ -25,6 +33,19 @@ By using the `init` command, gote will create a configuration file in the curren
 ### Example configuration
 ```
 access_token: <40 char access token>
+remote: git@github.com:hawry/gote
+user: hawry
+repository: gote
+```
+
+You will have to supply your [personal access token][2] manually if you didn't provide it during the init process.
+
+### Security
+The access token can be placed in an environment variable instead of directly in the .gote-configuration file to reduce the risk of leaking sensitive data to a remote endpoint. To use an environment variable, replace your access token in the configuration file with your environment variable name (i.e. `$GOTE_ACCESS`) and export the access token string `export GOTE_ACCESS=<access token>`.
+
+#### Example configuration with environment variable
+```
+access_token: $GOTE_ACCESS
 remote: git@github.com:hawry/gote
 user: hawry
 repository: gote
