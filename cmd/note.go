@@ -15,9 +15,16 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
 	"log"
+	"os"
 
+	"golang.org/x/oauth2"
+
+	"github.com/google/go-github/github"
 	"github.com/hawry/gote/config"
+	"github.com/hawry/gote/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -37,8 +44,43 @@ to quickly create a Cobra application.`,
 			log.Printf("error: could not open configuration file (%v)", err)
 			return
 		}
-		log.Printf("configuration: %+v", config)
+		log.Printf("debug: %+v", config)
+
+		fmt.Print("> ")
+		r := bufio.NewReader(os.Stdin)
+		rawBody, err := r.ReadString('\n')
+		if err != nil {
+			log.Printf("error: could not read from standard input (%v)", err)
+			return
+		}
+		if !(len(rawBody) > 0) {
+			log.Printf("warn: no content, ignoring note")
+			return
+		}
+
+		goteIssue := helpers.NewIssue(rawBody)
+		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.AccessToken})
+		tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+
+		cli := github.NewClient(tokenClient)
+		newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body}
+		_, response, err := cli.Issues.Create(config.User, config.Repository, newIssue)
+		if err != nil {
+			log.Printf("error: could not create issue for %s (%v)", config.Remote, err)
+			return
+		}
+
+		switch response.StatusCode {
+		case 201:
+			log.Printf("success: created new issue '%s' for remote %s", goteIssue.Title, config.Remote)
+		default:
+			log.Printf("warning: unknown response code from remote: %d", response.StatusCode)
+		}
 	},
+}
+
+func handleResponse(rsp *github.Response) {
+
 }
 
 func init() {
