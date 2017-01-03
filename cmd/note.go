@@ -77,7 +77,8 @@ to quickly create a Cobra application.`,
 		tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 
 		cli := github.NewClient(tokenClient)
-		newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body}
+		defaultLabels := []string{"gote"}
+		newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body, Labels: &defaultLabels}
 
 		if dryRun {
 			log.Printf("info: dry run enabled, the following would normally be sent to remote: %+v", goteIssue)
