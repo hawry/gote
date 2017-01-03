@@ -150,6 +150,10 @@ func Unmarshal(data []byte) (Configuration, error) {
 	if err := yaml.Unmarshal(data, &c); err != nil {
 		return c, err
 	}
+	if strings.HasPrefix(c.AccessToken, "$") {
+		//Use environment variable for access token, fetch env
+		c.AccessToken = os.Getenv(c.AccessToken[1:])
+	}
 	return c, nil
 }
 
