@@ -20,7 +20,8 @@ clean:
 	rm -rf $(GOPATH)/bin/$(OUT)
 
 debug:
-	@echo "build version will be $(VERSION)"
+	@echo "build version will be $(VERSION)\n" \
+	@echo "build prod tag will be $(PRODTAG)"
 
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm

@@ -4,6 +4,14 @@ This project replaces the existing [git-note][1] application for creating issues
 The tool relies on the use of personal access tokens with read and write access to public and private repositories where your user account have access.
 
 ## Usage
+
+Make sure you are in an initialized git-repository root folder. Then run the `init`-command in the project root to bootstrap gote and answer the access question. This command will fetch as much information as it can from your `.git/config`. If you wish to enter the information manually, use the `--interactive` flag.
+
+```
+/my/awesome/project$ gote init
+Please provide the personal access token for this repository (just press enter if you wish to do this manually later):
+```
+
 ```
 $ gote note
 > The brown fox jumps over something something dark side. I think we have cookies!
