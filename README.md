@@ -29,6 +29,17 @@ repository: gote
 
 You will have to supply your [personal access token][2] manually if you didn't provide it during the init process.
 
+### Security
+The access token can be placed in an environment variable instead of directly in the .gote-configuration file to reduce the risk of leaking sensitive data to a remote endpoint. To use an environment variable, replace your access token in the configuration file with your environment variable name (i.e. `$GOTE_ACCESS`) and export the access token string `export GOTE_ACCESS=<access token>`.
+
+#### Example configuration with environment variable
+```
+access_token: $GOTE_ACCESS
+remote: git@github.com:hawry/gote
+user: hawry
+repository: gote
+```
+
 ## Upcoming features
 * [x] Using $EDITOR instead of own secondary-prompt for title and body creation of issues
 * [ ] Close/Re-open issues directly from the prompt
