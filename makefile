@@ -1,6 +1,8 @@
 OUT = gote
 VERSION = `git describe --tags --long --dirty`
-LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
+LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
+PRODLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
+PRODTAG = `git describe --tags --abbrev=0`
 
 .PHONY: all
 .SILENT:
@@ -30,20 +32,25 @@ install:
 	# ln -s `pwd`/$(OUT) /usr/local/bin/$(OUT)
 
 # 386 arm64 arm
-release:
-	@echo "**** Creating release archive ***** "
+release: linux windows
+
+linux:
+	@echo "**** Creating release archive for LINUX ***** "
 	for arch in $(U_ARCHS); do \
 		# echo "Building for $$arch"; \
-		TARNAME="$(OUT)-linux-$$arch.tar.gz"; \
+		TARNAME="$(OUT)-$(PRODTAG)-linux-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
-		GOOS=linux GOARCH=$$arch go build $(LDFLAGS) -o $(OUT); \
+		GOOS=linux GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT); \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT); \
 		rm ./$(OUT); \
 	done
+
+windows:
+	@echo "**** Creating release archive for WINDOWS ***** "
 	for arch in $(W_ARCHS); do \
-		TARNAME="$(OUT)-windows-$$arch.tar.gz"; \
+		TARNAME="$(OUT)-$(PRODTAG)-windows-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
-		GOOS=windows GOARCH=$$arch go build $(LDFLAGS) -o $(OUT).exe; \
+		GOOS=windows GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT).exe; \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT).exe; \
 		rm ./$(OUT).exe; \
 	done
