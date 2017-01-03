@@ -25,6 +25,9 @@ import (
 
 var goteIgnore = `# Ignore .gote-files since they can contain personal access tokens
 .gote`
+var interactiveMode bool
+var reinitMode bool
+var modifyGitignore bool
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -32,45 +35,76 @@ var initCmd = &cobra.Command{
 	Short: "Initializes your repository to be used with gote",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := config.Default()
-		if err != nil {
-			log.Printf("warning: could not create default configuration (%v)", err)
-			return
+
+		if reinitMode {
+			modifyGitignore = false
+			log.Printf("info: Reinitializing gote-configuration")
+			os.Remove("./.gote")
 		}
-		log.Printf("debug: %+v", c)
-		if _, ferr := os.Stat("./.gitignore"); os.IsNotExist(ferr) {
-			b := helpers.Ask("No .gitignore file found. Do you wish to create it?").Bool()
-			if b {
-				_, err = os.Create("./.gitignore")
-				if err != nil {
-					log.Printf("warning: could not create .gitignore, make sure to add .gote-files manually to minimize the risk of leaking access tokens to remote endpoints")
+
+		if interactiveMode {
+			newConfig := config.Configuration{}
+			newConfig.AccessToken = helpers.Ask("Please provide the personal access token for this repository: (enter to leave this blank to fill in manually)").String()
+			newConfig.Remote = helpers.Ask("Remote endpoint (with protocol, eg. https://github.com/hawry/gote). Leave blank to fetch this from git config").String()
+			newConfig.User = helpers.Ask("Username (leave blank to fetch from git config): ").String()
+			newConfig.Repository = helpers.Ask("Repository (leave blank to fetch from git config): ").String()
+			log.Printf("debug: modify gitignore: %t", modifyGitignore)
+			if !modifyGitignore {
+				modifyGitignore = helpers.Ask("Add .gote to .gitignore?").Bool()
+				if modifyGitignore {
+					appendToGitignore()
 				}
-			} else {
+			}
+			_, err := config.Create(&newConfig)
+			if err != nil {
+				log.Printf("error: could not save new configuration (%v)", err)
 				return
 			}
-		}
-		f, err := os.OpenFile("./.gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-		if err != nil {
-			log.Printf("error: could not open .gitignore for writing (%v)", err)
+			log.Printf("info: configuration file created")
 			return
 		}
-		if _, err = f.WriteString(goteIgnore); err != nil {
-			log.Printf("error: something went wrong when trying to write to .gitignore, please make sure to add .gote-files to your gitignore to avoid pushing access tokens to any remote endpoints")
+
+		createDefault()
+
+		if modifyGitignore {
+			appendToGitignore()
 		}
 	},
 }
 
+func createDefault() {
+	_, err := config.Default()
+	if err != nil {
+		log.Printf("warning: could not create default configuration (%v)", err)
+		return
+	}
+}
+
+func appendToGitignore() {
+	if _, ferr := os.Stat("./.gitignore"); os.IsNotExist(ferr) {
+		b := helpers.Ask("No .gitignore file found. Do you wish to create it?").Bool()
+		if b {
+			_, err := os.Create("./.gitignore")
+			if err != nil {
+				log.Printf("warning: could not create .gitignore, make sure to add .gote-files manually to minimize the risk of leaking access tokens to remote endpoints")
+			}
+		} else {
+			return
+		}
+	}
+	f, err := os.OpenFile("./.gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Printf("error: could not open .gitignore for writing (%v)", err)
+		return
+	}
+	if _, err = f.WriteString(goteIgnore); err != nil {
+		log.Printf("error: something went wrong when trying to write to .gitignore, please make sure to add .gote-files to your gitignore to avoid pushing access tokens to any remote endpoints")
+	}
+}
+
 func init() {
 	RootCmd.AddCommand(initCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	initCmd.Flags().BoolVarP(&reinitMode, "reinit", "r", false, "Re-initialize the configuration, overwriting the previous one with the new one")
+	initCmd.Flags().BoolVarP(&interactiveMode, "interactive", "i", false, "Use interactive mode to set configuration values, default is false")
+	initCmd.Flags().BoolVarP(&modifyGitignore, "no-gitignore", "", false, "Don't modify .gitignore file (default to true when --reinit is used, otherwise defaults to false)")
 }

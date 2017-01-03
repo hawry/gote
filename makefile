@@ -7,12 +7,12 @@ PRODTAG = `git describe --tags --abbrev=0`
 .PHONY: all
 .SILENT:
 
-all: default run
+all: default
 
 default:
 	go build $(LDFLAGS) -o $(OUT)
 
-run:
+run: default
 	./$(OUT) note -d
 
 clean:
