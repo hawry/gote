@@ -13,7 +13,7 @@ default:
 	go build $(LDFLAGS) -o $(OUT)
 
 run:
-	./$(OUT)
+	./$(OUT) note -d
 
 clean:
 	rm -rf ./$(OUT); \

@@ -15,6 +15,8 @@
 package main
 
 import (
+	"log"
+
 	"comail.io/go/colog"
 	"github.com/hawry/gote/cmd"
 )
@@ -26,6 +28,8 @@ func main() {
 	if logLevel == "production" {
 		colog.SetMinLevel(colog.LInfo)
 		colog.SetDefaultLevel(colog.LDebug)
+	} else {
+		colog.SetFlags(log.Lshortfile | log.LstdFlags)
 	}
 	cmd.Execute()
 }

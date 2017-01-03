@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hawry/gote/helpers"
+
 	gcfg "gopkg.in/gcfg.v1"
 )
 
@@ -36,17 +38,6 @@ func isGitDir(path string) (bool, string) {
 //parseRemoteInformation will return the user and the repository name from a given remote
 func parseRemoteInformation(remote string) (user, repository string) {
 	r := regexp.MustCompile(identifyRegex)
-	result := toMap(r.FindStringSubmatch(remote), r.SubexpNames())
+	result := helpers.ToMap(r.FindStringSubmatch(remote), r.SubexpNames())
 	return result["user"], result["repo"]
-}
-
-//toMap is to not make me have to repeat this monstrosity more than neccessary
-func toMap(fss []string, names []string) map[string]string {
-	rval := make(map[string]string)
-	for i, name := range names {
-		if i != 0 {
-			rval[name] = fss[i]
-		}
-	}
-	return rval
 }

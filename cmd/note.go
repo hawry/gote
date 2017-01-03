@@ -28,6 +28,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var dryRun bool
+
 // noteCmd represents the note command
 var noteCmd = &cobra.Command{
 	Use:   "note",
@@ -44,26 +46,43 @@ to quickly create a Cobra application.`,
 			log.Printf("error: could not open configuration file (%v)", err)
 			return
 		}
+
 		log.Printf("debug: %+v", config)
+		var goteIssue *helpers.Issue
 
-		fmt.Print("> ")
-		r := bufio.NewReader(os.Stdin)
-		rawBody, err := r.ReadString('\n')
-		if err != nil {
-			log.Printf("error: could not read from standard input (%v)", err)
-			return
-		}
-		if !(len(rawBody) > 0) {
-			log.Printf("warn: no content, ignoring note")
-			return
+		if helpers.CanUseEditor() {
+			e := helpers.NewEditor()
+			if !e.Valid {
+				log.Printf("warning: empty response, ignoring")
+				return
+			}
+			goteIssue = e.Issue
+		} else {
+			//Use secondary prompt
+			fmt.Print("> ")
+			r := bufio.NewReader(os.Stdin)
+			rawBody, rerr := r.ReadString('\n')
+			if rerr != nil {
+				log.Printf("error: could not read from standard input (%v)", rerr)
+				return
+			}
+			if !(len(rawBody) > 0) {
+				log.Printf("warn: no content, ignoring note")
+				return
+			}
+			goteIssue = helpers.NewIssue(rawBody)
 		}
 
-		goteIssue := helpers.NewIssue(rawBody)
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.AccessToken})
 		tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 
 		cli := github.NewClient(tokenClient)
 		newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body}
+
+		if dryRun {
+			log.Printf("info: dry run enabled, the following would normally be sent to remote: %+v", goteIssue)
+			return
+		}
 		_, response, err := cli.Issues.Create(config.User, config.Repository, newIssue)
 		if err != nil {
 			log.Printf("error: could not create issue for %s (%v)", config.Remote, err)
@@ -79,10 +98,6 @@ to quickly create a Cobra application.`,
 	},
 }
 
-func handleResponse(rsp *github.Response) {
-
-}
-
 func init() {
 	RootCmd.AddCommand(noteCmd)
 
@@ -95,5 +110,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// noteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	noteCmd.PersistentFlags().BoolVarP(&dryRun, "dry", "d", false, "Do a dry run, to test configuration settings and credentials without creating any issues")
 }

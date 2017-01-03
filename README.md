@@ -11,6 +11,8 @@ $ gote note
 
 When the input receives a newline character, the body is shortened and formatted and then pushed to the repository where the command was called from, creating an issue with a title and a body.
 
+If the $EDITOR environment variable is set, gote asks for input from the editor instead of through the command line. Gote will always take the first line and turn it into the Issue-title, and the rest of the text will be the body. If no body is provided, the title is repeated as the body. Using the editor enables you to use markdown in your issue body.
+
 ## Installation
 Either clone this repository and build it from source or download any of the precompiled binaries.
 
@@ -27,13 +29,11 @@ repository: gote
 
 You will have to supply your [personal access token][2] manually if you didn't provide it during the init process.
 
-
-
-## TODO
-* [ ] Markdown support
-* [ ] Using $EDITOR instead of own secondary-prompt for title and body creation of issues
+## Upcoming features
+* [x] Using $EDITOR instead of own secondary-prompt for title and body creation of issues
 * [ ] Close/Re-open issues directly from the prompt
 * [ ] Custom labels
+* [ ] Global configuration to set default access tokens, specify editor in other means than through environment variables and also default user (for collabs and such)
 * [ ] Using environment variables instead of files for access tokens (customizable)
 
 [1]: https://github.com/hawry/git-note

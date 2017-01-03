@@ -19,6 +19,13 @@ type Configuration struct {
 	Repository  string `yaml:"repository,omitempty"`
 }
 
+//GlobalConfiguration describes the global configuration used for gote application wide and can also be used to set some standard values, such as personal access tokens through init
+type GlobalConfiguration struct {
+	Editor      string `yaml:"editor,omitempty"`
+	UseInline   bool   `yaml:"use_inline,omitempty"`
+	GlobalToken string `yaml:"global_token,omitempty"`
+}
+
 const (
 	//DefaultConfigName is the default name of the Gote configuration file that should exist in the repository root
 	DefaultConfigName = ".gote"
@@ -27,6 +34,8 @@ const (
 remote: %s
 user: %s
 repository: %s`
+	//DefaultGlobalConfigName is the default name of the global configuration file used for application wide settings
+	DefaultGlobalConfigName = ".gote_global"
 )
 
 //Default creates and returns a default configuration (used by initialization command)
