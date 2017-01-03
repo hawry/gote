@@ -13,10 +13,10 @@ import (
 
 //Configuration describes a configuration for a repository
 type Configuration struct {
-	AccessToken string `yaml:"access_token"`
-	Remote      string `yaml:"remote,omitempty"`
-	User        string `yaml:"user,omitempty"`
-	Repository  string `yaml:"repository,omitempty"`
+	AccessTokenString string `yaml:"access_token"`
+	Remote            string `yaml:"remote,omitempty"`
+	User              string `yaml:"user,omitempty"`
+	Repository        string `yaml:"repository,omitempty"`
 }
 
 //GlobalConfiguration describes the global configuration used for gote application wide and can also be used to set some standard values, such as personal access tokens through init
@@ -65,6 +65,57 @@ func Default() (Configuration, error) {
 	return Unmarshal([]byte(defaultConfig))
 }
 
+func (c *Configuration) clean() {
+	trim := func(r rune) bool {
+		return r == '\n'
+	}
+	c.AccessTokenString = strings.TrimFunc(c.AccessTokenString, trim)
+	c.Remote = strings.TrimFunc(c.Remote, trim)
+	c.User = strings.TrimFunc(c.User, trim)
+	c.Repository = strings.TrimFunc(c.Repository, trim)
+}
+
+//Create saves a configuration in yaml-format, and makes sure that all fields are valid
+func Create(c *Configuration) (Configuration, error) {
+	//Validate and make sure all needed variables are set, which is remote, user and repo
+	c.clean()
+	if c.Remote == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return *c, err
+		}
+		b, r := isGitDir("./")
+		if !b {
+			return *c, &notGitDirError{arg: wd}
+		}
+		c.Remote = r
+	}
+
+	if c.User == "" {
+		usr, _ := parseRemoteInformation(c.Remote)
+		c.User = usr
+	}
+
+	if c.Repository == "" {
+		_, rep := parseRemoteInformation(c.Remote)
+		c.Repository = rep
+	}
+
+	configData, err := yaml.Marshal(&c)
+	if err != nil {
+		return *c, err
+	}
+	f, err := os.Create(DefaultConfigName)
+	if err != nil {
+		return *c, err
+	}
+	_, err = f.WriteString(string(configData))
+	if err != nil {
+		return *c, err
+	}
+	return *c, nil
+}
+
 //askForAccessToken will ask the user to provide their personal access token for the init-process. If they only give an empty line, it will return a default placeholder instead
 func askForAccessToken() string {
 	r := bufio.NewReader(os.Stdin)
@@ -78,6 +129,15 @@ func askForAccessToken() string {
 		return txt
 	}
 	return tokenPlaceholder
+}
+
+//AccessToken should be used instead of directly access through the AccessToken attribute. If the user have specified that the token should be taken from an environment variable, this will ensure that the token is updated if the environment variable is changed (and the raw token will not be saved into a new configuration file by accident)
+func (c *Configuration) AccessToken() string {
+	if strings.HasPrefix(c.AccessTokenString, "$") {
+		//Use environment variable for access token, fetch env
+		return os.Getenv(c.AccessTokenString[1:])
+	}
+	return c.AccessTokenString
 }
 
 //Load tries to load a given configuration file

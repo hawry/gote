@@ -11,7 +11,6 @@ import (
 )
 
 const (
-	// httpsRegex = "\\A(?P<protocol>https://)(?P<host>[^/]*)/(?P<user>[^/]*)/(?P<repo>[^/]*)\\z"
 	identifyRegex = "\\A(?P<protocol>git@|git://|https://)(?P<host>[^/:]*)[/|:]{1}(?P<user>[^/]*)/(?P<repo>[^/]*)\\z"
 )
 
