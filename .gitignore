@@ -1,4 +1,5 @@
 gote
 gote.exe
-.gote
 archives
+# Ignore .gote-files since they can contain personal access tokens
+.gote

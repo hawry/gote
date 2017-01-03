@@ -14,7 +14,8 @@ run:
 	./$(OUT)
 
 clean:
-	rm -rf ./$(OUT)
+	rm -rf ./$(OUT); \
+	rm -rf $(GOPATH)/bin/$(OUT)
 
 debug:
 	@echo "build version will be $(VERSION)"
@@ -22,6 +23,11 @@ debug:
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm
 W_ARCHS = amd64 386
+
+install:
+	cp `pwd`/$(OUT) $(GOPATH)/bin/$(OUT)
+	# unlink /usr/local/bin/$(OUT); \
+	# ln -s `pwd`/$(OUT) /usr/local/bin/$(OUT)
 
 # 386 arm64 arm
 release:

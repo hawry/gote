@@ -14,8 +14,12 @@
 
 package main
 
-import "github.com/hawry/gote/cmd"
+import (
+	"comail.io/go/colog"
+	"github.com/hawry/gote/cmd"
+)
 
 func main() {
+	colog.Register()
 	cmd.Execute()
 }
