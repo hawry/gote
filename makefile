@@ -1,6 +1,6 @@
 OUT = gote
 VERSION = `git describe --tags --long --dirty`
-LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
+LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
 
 .PHONY: all
 .SILENT:

@@ -1,6 +1,9 @@
 package helpers
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 //Issue is a gote representation of a GitHub issue. Not to be confused by those used by support libs
 type Issue struct {
@@ -10,6 +13,10 @@ type Issue struct {
 
 //NewIssue returns a new issue and also formats the raw issue data provided by the user to better suited lengths
 func NewIssue(raw string) *Issue {
+	raw = strings.TrimSpace(raw)
+	raw = strings.TrimLeftFunc(raw, func(r rune) bool {
+		return r == '\n'
+	})
 	i := Issue{}
 	if len(raw) > 50 {
 		i.Title = fmt.Sprintf("%s...", raw[:49])

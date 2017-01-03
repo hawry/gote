@@ -19,7 +19,13 @@ import (
 	"github.com/hawry/gote/cmd"
 )
 
+var logLevel string
+
 func main() {
 	colog.Register()
+	if logLevel == "production" {
+		colog.SetMinLevel(colog.LInfo)
+		colog.SetDefaultLevel(colog.LDebug)
+	}
 	cmd.Execute()
 }

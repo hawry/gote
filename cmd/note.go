@@ -72,7 +72,7 @@ to quickly create a Cobra application.`,
 
 		switch response.StatusCode {
 		case 201:
-			log.Printf("success: created new issue '%s' for remote %s", goteIssue.Title, config.Remote)
+			log.Printf("info: created new issue '%s' for remote %s", goteIssue.Title, config.Remote)
 		default:
 			log.Printf("warning: unknown response code from remote: %d", response.StatusCode)
 		}
