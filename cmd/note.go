@@ -73,7 +73,7 @@ to quickly create a Cobra application.`,
 			goteIssue = helpers.NewIssue(rawBody)
 		}
 
-		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.AccessToken})
+		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.AccessToken()})
 		tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
 
 		cli := github.NewClient(tokenClient)
@@ -81,6 +81,7 @@ to quickly create a Cobra application.`,
 
 		if dryRun {
 			log.Printf("info: dry run enabled, the following would normally be sent to remote: %+v", goteIssue)
+			log.Printf("debug: access token is: %s", config.AccessToken())
 			return
 		}
 		_, response, err := cli.Issues.Create(config.User, config.Repository, newIssue)
