@@ -44,10 +44,10 @@ var initCmd = &cobra.Command{
 
 		if interactiveMode {
 			newConfig := config.Local{}
-			newConfig.AccessTokenString = helpers.Ask("Please provide the personal access token for this repository: (enter to leave this blank to fill in manually)").String()
+			newConfig.AccessTokenString = helpers.Ask("Please provide the personal access token for this repository: (enter to leave this blank to fill in manually or to use the global access token if configured)").String()
 			newConfig.Remote = helpers.Ask("Remote endpoint (with protocol, eg. https://github.com/hawry/gote). Leave blank to fetch this from git config").String()
-			newConfig.RepoOwner = helpers.Ask("Username (leave blank to fetch from git config): ").String()
-			newConfig.Repository = helpers.Ask("Repository (leave blank to fetch from git config): ").String()
+			newConfig.RepoOwner = helpers.Ask("Repository owner (leave blank to fetch from git config): ").String()
+			newConfig.Repository = helpers.Ask("Repository name (leave blank to fetch from git config): ").String()
 			log.Printf("debug: modify gitignore: %t", modifyGitignore)
 			if !modifyGitignore {
 				modifyGitignore = helpers.Ask("Add .gote to .gitignore?").Bool()
