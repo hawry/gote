@@ -1,4 +1,4 @@
-package helpers
+package editor
 
 import (
 	"io/ioutil"
@@ -7,6 +7,9 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	"github.com/hawry/gote/config"
+	"github.com/hawry/gote/helpers"
 )
 
 //Editor enables packages outside of the helper package to access the default editor and parses content as well as title
@@ -15,27 +18,36 @@ type Editor struct {
 	Title   string
 	Content string
 	Valid   bool
-	Issue   *Issue
+	Issue   *helpers.Issue
 }
 
 const (
 	titlePattern = "(?P<title>\\A.*)\n*(?ms)(?P<content>.*)\\z"
 )
 
-//CanUseEditor returns true if the $EDITOR environment variable is set, otherwise returns false
-func CanUseEditor() bool {
-	editor := os.Getenv("EDITOR")
-	_, err := exec.LookPath(editor)
-	if err != nil {
-		return false
+//UseEditor returns true if the $EDITOR environment variable is set or if the global configuration specified which editor to use. The method also checks if the chosen editor exists in the PATH, and returns true if the editor will be possible to use - false otherwise. The editor path will also be returned for further use
+func UseEditor(cfg config.Global) (bool, string) {
+	var editor string
+	log.Printf("debug: cfg editor=%s", cfg.Editor)
+	if cfg.Editor != "" {
+		if strings.HasPrefix(cfg.Editor, "$") {
+			editor = os.Getenv(cfg.Editor[1:])
+		} else {
+			editor = cfg.Editor
+		}
+	} else {
+		editor = os.Getenv("EDITOR")
 	}
-	return true
+	p, err := exec.LookPath(editor)
+	if err != nil {
+		return false, ""
+	}
+	return true, p
 }
 
-//NewEditor returns an editor struct, which can't be manipulated
-func NewEditor() Editor {
+//New returns an editor struct, which can't be manipulated
+func New(editor string) Editor {
 	e := Editor{Valid: false}
-	editor := os.Getenv("EDITOR")
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "gote_")
 	if err != nil {
 		log.Printf("error: tempfile could not be created (%v)", err)
@@ -73,7 +85,7 @@ func (e *Editor) parse() {
 	sval = strings.TrimSpace(sval)
 
 	r := regexp.MustCompile(titlePattern)
-	result := ToMap(r.FindStringSubmatch(sval), r.SubexpNames())
+	result := helpers.ToMap(r.FindStringSubmatch(sval), r.SubexpNames())
 
 	log.Printf("debug: length of result: %d", len(result))
 	e.Title = result["title"]
@@ -82,20 +94,8 @@ func (e *Editor) parse() {
 		if !(len(e.Content) > 0) {
 			e.Content = e.Title //Never send an empty body, mainly for other users sake!
 		}
-		i := Issue{Title: e.Title, Body: e.Content}
+		i := helpers.Issue{Title: e.Title, Body: e.Content}
 		e.Issue = &i
 		e.Valid = true
 	}
-}
-
-//ToMap is to not make me have to repeat this monstrosity more than neccessary
-func ToMap(fss []string, names []string) map[string]string {
-	log.Printf("debug: received the following: %+v, %+v", fss, names)
-	rval := make(map[string]string)
-	for i, name := range names {
-		if i != 0 {
-			rval[name] = fss[i]
-		}
-	}
-	return rval
 }

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -27,4 +28,16 @@ func NewIssue(raw string) *Issue {
 		i.Body = raw
 	}
 	return &i
+}
+
+//ToMap is to not make me have to repeat this monstrosity more than neccessary
+func ToMap(fss []string, names []string) map[string]string {
+	log.Printf("debug: received the following: %+v, %+v", fss, names)
+	rval := make(map[string]string)
+	for i, name := range names {
+		if i != 0 {
+			rval[name] = fss[i]
+		}
+	}
+	return rval
 }
