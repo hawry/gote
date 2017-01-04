@@ -35,7 +35,7 @@ user: hawry
 repository: gote
 ```
 
-You will have to supply your [personal access token][2] manually if you didn't provide it during the init process.
+You will have to supply your [personal access token][2] manually if you didn't provide it during the init process. To allow gote to access issues in private repositories make sure to give the token full `repo`-access.
 
 ### Security
 The access token can be placed in an environment variable instead of directly in the .gote-configuration file to reduce the risk of leaking sensitive data to a remote endpoint. To use an environment variable, replace your access token in the configuration file with your environment variable name (i.e. `$GOTE_ACCESS`) and export the access token string `export GOTE_ACCESS=<access token>`.
