@@ -43,7 +43,7 @@ var initCmd = &cobra.Command{
 		}
 
 		if interactiveMode {
-			newConfig := config.Configuration{}
+			newConfig := config.Local{}
 			newConfig.AccessTokenString = helpers.Ask("Please provide the personal access token for this repository: (enter to leave this blank to fill in manually)").String()
 			newConfig.Remote = helpers.Ask("Remote endpoint (with protocol, eg. https://github.com/hawry/gote). Leave blank to fetch this from git config").String()
 			newConfig.RepoOwner = helpers.Ask("Username (leave blank to fetch from git config): ").String()
