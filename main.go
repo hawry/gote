@@ -29,7 +29,7 @@ func main() {
 		colog.SetMinLevel(colog.LInfo)
 		colog.SetDefaultLevel(colog.LDebug)
 	} else {
-		colog.SetFlags(log.Lshortfile | log.LstdFlags)
+		colog.SetFlags(log.Lshortfile)
 	}
 	cmd.Execute()
 }

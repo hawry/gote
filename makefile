@@ -19,6 +19,9 @@ clean:
 	rm -rf ./$(OUT); \
 	rm -rf $(GOPATH)/bin/$(OUT)
 
+prod:
+	go build $(PRODLDFLAGS) -o $(OUT)
+
 debug:
 	@echo "build version will be $(VERSION)\n" \
 	@echo "build prod tag will be $(PRODTAG)"

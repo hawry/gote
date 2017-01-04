@@ -1,38 +1,25 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
-	"runtime"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
-var configPath string
-
-func init() {
-	var homePath string
-	if runtime.GOOS == "windows" {
-		homePath = os.Getenv("USERPROFILE")
-	} else {
-		homePath = os.Getenv("HOME")
-	}
-	configPath = fmt.Sprintf("%s/.gote/.config", strings.TrimSuffix(homePath, "/"))
-}
-
 //Global describes a global configuration for gote
 type Global struct {
 	Editor            string `yaml:"editor,omitempty"`
-	AccessTokenString string `yaml:"global_token,omitempty"`
+	AccessTokenString string `yaml:"access_token,omitempty"`
 }
 
 //LoadGlobal loads the global configuration
-func LoadGlobal() (globalConfig Global, cfgExists bool, err error) {
-	exists := configExists(configPath)
+func LoadGlobal() (cfg Global, cfgExists bool, err error) {
+	exists := configExists(globalConfig)
 	g := Global{}
-	f, err := os.Open(configPath)
+	f, err := os.Open(globalConfig)
 	if err != nil {
 		return g, exists, err
 	}
@@ -40,10 +27,12 @@ func LoadGlobal() (globalConfig Global, cfgExists bool, err error) {
 	if err != nil {
 		return g, exists, err
 	}
+	log.Printf("debug: raw global; %v", string(b))
 	err = yaml.Unmarshal(b, &g)
 	if err != nil {
 		return g, exists, err
 	}
+	log.Printf("debug: global loaded (%v)", g)
 	return g, exists, nil
 }
 
