@@ -85,7 +85,7 @@ to quickly create a Cobra application.`,
 			log.Printf("debug: access token is: %s", config.AccessToken())
 			return
 		}
-		_, response, err := cli.Issues.Create(config.User, config.Repository, newIssue)
+		_, response, err := cli.Issues.Create(config.RepoOwner, config.Repository, newIssue)
 		if err != nil {
 			log.Printf("error: could not create issue for %s (%v)", config.Remote, err)
 			return

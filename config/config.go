@@ -15,8 +15,8 @@ import (
 type Configuration struct {
 	AccessTokenString string `yaml:"access_token"`
 	Remote            string `yaml:"remote,omitempty"`
-	User              string `yaml:"user,omitempty"`
-	Repository        string `yaml:"repository,omitempty"`
+	RepoOwner         string `yaml:"repository_owner,omitempty"`
+	Repository        string `yaml:"repository_name,omitempty"`
 }
 
 //GlobalConfiguration describes the global configuration used for gote application wide and can also be used to set some standard values, such as personal access tokens through init
@@ -32,8 +32,8 @@ const (
 	tokenPlaceholder  = "<please insert your personal access token here>"
 	rawConfig         = `access_token: %s
 remote: %s
-user: %s
-repository: %s`
+repository_owner: %s
+repository_name: %s`
 	//DefaultGlobalConfigName is the default name of the global configuration file used for application wide settings
 	DefaultGlobalConfigName = ".gote_global"
 )
@@ -71,7 +71,7 @@ func (c *Configuration) clean() {
 	}
 	c.AccessTokenString = strings.TrimFunc(c.AccessTokenString, trim)
 	c.Remote = strings.TrimFunc(c.Remote, trim)
-	c.User = strings.TrimFunc(c.User, trim)
+	c.RepoOwner = strings.TrimFunc(c.RepoOwner, trim)
 	c.Repository = strings.TrimFunc(c.Repository, trim)
 }
 
@@ -91,9 +91,9 @@ func Create(c *Configuration) (Configuration, error) {
 		c.Remote = r
 	}
 
-	if c.User == "" {
-		usr, _ := parseRemoteInformation(c.Remote)
-		c.User = usr
+	if c.RepoOwner == "" {
+		owner, _ := parseRemoteInformation(c.Remote)
+		c.RepoOwner = owner
 	}
 
 	if c.Repository == "" {
