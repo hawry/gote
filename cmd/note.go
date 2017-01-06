@@ -26,6 +26,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/hawry/gote/config"
 	"github.com/hawry/gote/helpers"
+	"github.com/hawry/gote/helpers/buffer"
 	"github.com/hawry/gote/helpers/editor"
 	"github.com/hawry/gote/helpers/format"
 	"github.com/spf13/cobra"
@@ -89,32 +90,53 @@ var noteCmd = &cobra.Command{
 			}
 			goteIssue = helpers.NewIssue(raw)
 		}
-
-		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
-		tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
-
-		cli := github.NewClient(tokenClient)
-		defaultLabels := []string{"gote"}
-		newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body, Labels: &defaultLabels}
-
-		if dryRun {
-			log.Printf("info: dry run enabled, the following would normally be sent to remote: %+v", goteIssue)
-			log.Printf("debug: access token is: %s (using global %t)", accessToken, useGlobal)
-			return
-		}
-		_, response, err := cli.Issues.Create(localCfg.RepoOwner, localCfg.Repository, newIssue)
-		if err != nil {
-			log.Printf("error: could not create issue for %s (%v)", localCfg.Remote, err)
-			return
-		}
-
-		switch response.StatusCode {
-		case 201:
-			log.Printf("info: created new issue '%s' for remote %s", goteIssue.Title, localCfg.Remote)
-		default:
-			log.Printf("warning: unknown response code from remote: %d", response.StatusCode)
+		if sendIssue(*goteIssue, localCfg.RepoOwner, localCfg.Repository, accessToken) {
+			if bc := buffer.Count(); bc > 0 {
+				log.Printf("warning: there are %d buffered issues. sending them now!", bc)
+				for bc > 0 {
+					if !sendIssue(buffer.Remove(), localCfg.RepoOwner, localCfg.Repository, accessToken) {
+						//not really any use to keep hacking away at trying to send if one of them fails...
+						log.Printf("warning: could not send buffered issue. Aborting. All unsent issues will be sent the next time a successful transmit is made")
+						break
+					}
+					bc = buffer.Count()
+				}
+			}
+			log.Printf("info: ")
 		}
 	},
+}
+
+func sendIssue(goteIssue helpers.Issue, repoOwner, repoName, accessToken string) bool {
+	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
+	tokenClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+
+	cli := github.NewClient(tokenClient)
+	defaultLabels := []string{"gote"}
+	newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body, Labels: &defaultLabels}
+
+	if dryRun {
+		// log.Printf("info: dry run enabled, the following would normally be sent to remote: %+v", goteIssue)
+		// log.Printf("debug: access token is: %s (using global %t)", accessToken, useGlobal)
+		return true
+	}
+	_, response, err := cli.Issues.Create(repoOwner, repoName, newIssue)
+	if err != nil {
+		log.Printf("error: could not create issue for %s (%v)", fmt.Sprintf("%s/%s", repoOwner, repoName), err)
+		//add to buffer
+		log.Printf("warning: this issue was added to the send buffer and will be sent the next time a successful transmission is made")
+		buffer.Add(goteIssue)
+		buffer.Save()
+		return false
+	}
+
+	switch response.StatusCode {
+	case 201:
+		log.Printf("info: created new issue '%s' for %s/%s", goteIssue.Title, repoOwner, repoName)
+	default:
+		log.Printf("warning: unknown response code from remote: %d", response.StatusCode)
+	}
+	return true
 }
 
 func init() {

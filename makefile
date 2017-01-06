@@ -3,6 +3,11 @@ VERSION = `git describe --tags --long --dirty`
 LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
 PRODLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
 PRODTAG = `git describe --tags --abbrev=0`
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), MSYS_NT-10.0)
+	OUT = gote.exe
+endif
 
 .PHONY: all
 .SILENT:
@@ -15,6 +20,9 @@ default:
 run: default
 	./$(OUT) note -d
 
+test:
+	go test ./... -v
+
 clean:
 	rm -rf ./$(OUT); \
 	rm -rf $(GOPATH)/bin/$(OUT)
@@ -24,7 +32,8 @@ prod:
 
 debug:
 	@echo "build version will be $(VERSION)\n" \
-	@echo "build prod tag will be $(PRODTAG)"
+	@echo "build prod tag will be $(PRODTAG)" \
+	@echo "binary executable will be $(OUT)"
 
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm

@@ -16,8 +16,10 @@ package main
 
 import (
 	"log"
+	"runtime"
 
 	"comail.io/go/colog"
+	"comail.io/go/wincolog"
 	"github.com/hawry/gote/cmd"
 )
 
@@ -30,6 +32,9 @@ func main() {
 		colog.SetDefaultLevel(colog.LDebug)
 	} else {
 		colog.SetFlags(log.Lshortfile)
+	}
+	if runtime.GOOS == "windows" {
+		colog.SetOutput(wincolog.Stdout())
 	}
 	cmd.Execute()
 }

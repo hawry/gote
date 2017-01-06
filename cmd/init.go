@@ -24,7 +24,8 @@ import (
 )
 
 var goteIgnore = `# Ignore .gote-files since they can contain personal access tokens
-.gote`
+.gote
+.gote_buffer`
 var interactiveMode bool
 var reinitMode bool
 var modifyGitignore bool
