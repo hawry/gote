@@ -9,8 +9,20 @@ import (
 	"github.com/hawry/gote/helpers"
 )
 
+var fpath string
+
+func TestMain(m *testing.M) {
+	fpath = newTestFile()
+	m.Run()
+	os.Remove(fpath)
+}
+
+func newTestFile() string {
+	return fmt.Sprintf("./.gote_buffer_%d", time.Now().UnixNano())
+}
+
 func TestEmptyBuffer(t *testing.T) {
-	os.Remove("./.gote_buffer")
+	setFilePath(fpath)
 	if b := hasBuffer(); b {
 		t.Logf("expected %t, returned %t", false, b)
 		t.Fail()
@@ -18,9 +30,9 @@ func TestEmptyBuffer(t *testing.T) {
 }
 
 func TestSaveBuffer(t *testing.T) {
-	setFilePath("../../.gote_buffer")
+	setFilePath(fpath)
 	if hasBuffer() {
-		os.Remove("../../.gote_buffer")
+		os.Remove(fpath)
 	}
 	Add(helpers.Issue{Title: "issue title", Body: fmt.Sprintf("issue body (%d)", time.Now().UnixNano())})
 	if b := Count(); b != 1 {

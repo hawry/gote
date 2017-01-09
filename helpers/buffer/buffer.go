@@ -55,12 +55,11 @@ func save() {
 		return
 	}
 	defer f.Close()
-	n, err := f.Write(b.Bytes())
+	_, err = f.Write(b.Bytes())
 	if err != nil {
 		log.Printf("error: could not write to buffer (%v)", err)
 		return
 	}
-	log.Printf("debug: written %d bytes to buffer", n)
 }
 
 func load() {
@@ -87,12 +86,7 @@ func load() {
 		log.Printf("error: could not decode buffer (%v)", err)
 		return
 	}
-	log.Printf("%+v", issues)
-	for k, v := range issues {
-		log.Printf("%d = %v", k, v)
-	}
 	currentItr = len(issues)
-	log.Printf("current after load: %d", currentItr)
 }
 
 //Save is the exported variant of the save
@@ -103,9 +97,7 @@ func Save() {
 //Add will add the specified issue to the buffer
 func Add(v helpers.Issue) {
 	issues[currentItr] = v
-	log.Printf("current= %d", currentItr)
 	currentItr++
-	log.Printf("new=%d", currentItr)
 }
 
 //Count will return the number of issues in the buffer
@@ -116,15 +108,12 @@ func Count() int {
 //Remove will return one of the issues in the buffer
 func Remove() helpers.Issue {
 	itr := currentItr - 1
-	log.Printf("debug: remove called, len = %d, currentItr = %d (itr=%d)", Count(), currentItr, itr)
 	if v, ok := issues[itr]; ok {
 		currentItr--
 		//actually remove the element from the underlying map
 		delete(issues, itr)
-		log.Printf("found issue (%+v)", v)
 		return v
 	}
-	log.Printf("did not find issue at %d", currentItr)
 	return helpers.Issue{}
 }
 

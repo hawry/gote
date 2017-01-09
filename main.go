@@ -30,6 +30,7 @@ func main() {
 	colog.SetDefaultLevel(colog.LDebug)
 	if logLevel == "production" {
 		colog.SetMinLevel(colog.LInfo)
+		colog.SetFlags(log.Ltime)
 	} else {
 		colog.SetFlags(log.Lshortfile)
 	}

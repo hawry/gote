@@ -36,7 +36,6 @@ var bufferCmd = &cobra.Command{
 		}
 
 		if doSendBuffer {
-			log.Printf("send buffer (buffer)")
 			doNote(nil, nil)
 			return
 		}
@@ -58,7 +57,7 @@ var bufferCmd = &cobra.Command{
 		bufferSize := buffer.Count()
 		log.Printf("info: there are %d issues buffered", bufferSize)
 		for k, v := range buffer.All() {
-			fmt.Printf("[%d]\t%s\n", k, v.Title)
+			fmt.Printf("[ID: %d]\t%s\n", k, v.Title)
 		}
 	},
 }

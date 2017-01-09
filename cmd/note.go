@@ -142,7 +142,7 @@ func sendIssue(goteIssue helpers.Issue, repoOwner, repoName, accessToken string)
 	newIssue := &github.IssueRequest{Title: &goteIssue.Title, Body: &goteIssue.Body, Labels: &defaultLabels}
 
 	if addToBuffer {
-		log.Printf("adding to buffer %+v", goteIssue)
+		log.Printf("info: adding '%s' to buffer", goteIssue.Title)
 		buffer.Add(goteIssue)
 		buffer.Save()
 		return true
