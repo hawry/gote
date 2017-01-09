@@ -3,3 +3,4 @@ gote.exe
 archives
 # Ignore .gote-files since they can contain personal access tokens
 .gote
+.gote_buffer

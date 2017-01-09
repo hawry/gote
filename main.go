@@ -16,8 +16,10 @@ package main
 
 import (
 	"log"
+	"runtime"
 
 	"comail.io/go/colog"
+	"comail.io/go/wincolog"
 	"github.com/hawry/gote/cmd"
 )
 
@@ -27,9 +29,16 @@ func main() {
 	colog.Register()
 	if logLevel == "production" {
 		colog.SetMinLevel(colog.LInfo)
-		colog.SetDefaultLevel(colog.LDebug)
+		colog.SetFlags(log.Ltime)
 	} else {
 		colog.SetFlags(log.Lshortfile)
+	}
+	if runtime.GOOS == "windows" {
+		colog.SetOutput(wincolog.Stdout())
+	} else {
+		if logLevel != "production" {
+			colog.SetDefaultLevel(colog.LDebug)
+		}
 	}
 	cmd.Execute()
 }

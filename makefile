@@ -2,7 +2,13 @@ OUT = gote
 VERSION = `git describe --tags --long --dirty`
 LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
 PRODLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
+DOCSLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.createDocumentation=true"
 PRODTAG = `git describe --tags --abbrev=0`
+UNAME := $(shell uname)
+
+# ifeq ($(UNAME), MSYS_NT-10.0)
+# 	OUT = gote.exe
+# endif
 
 .PHONY: all
 .SILENT:
@@ -15,6 +21,9 @@ default:
 run: default
 	./$(OUT) note -d
 
+test:
+	go test ./... -v
+
 clean:
 	rm -rf ./$(OUT); \
 	rm -rf $(GOPATH)/bin/$(OUT)
@@ -22,9 +31,15 @@ clean:
 prod:
 	go build $(PRODLDFLAGS) -o $(OUT)
 
+documentation:
+	@echo "building with docs flag set! $(DOCSLDFLAGS)" \
+	go build $(DOCSLDFLAGS) -o $(OUT)
+
 debug:
-	@echo "build version will be $(VERSION)\n" \
-	@echo "build prod tag will be $(PRODTAG)"
+	@echo 'build version will be $(VERSION)\n' \
+	@echo "build prod tag will be $(PRODTAG)\n" \
+	@echo "binary executable will be $(OUT)" \
+	@echo "docs ld $(DOCSLDFLAGS)"
 
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm
@@ -36,7 +51,13 @@ install:
 	# ln -s `pwd`/$(OUT) /usr/local/bin/$(OUT)
 
 # 386 arm64 arm
-release: linux windows
+
+markdown:
+	cd ./docs; \
+	go run gendoc.go; \
+	cd ../
+
+release: linux windows markdown
 
 linux:
 	@echo "**** Creating release archive for LINUX ***** "
