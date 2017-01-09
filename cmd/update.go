@@ -15,8 +15,9 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
+	"github.com/hawry/gote/config"
 	"github.com/spf13/cobra"
 )
 
@@ -24,20 +25,30 @@ import (
 var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Force update the current configuration from the git-configuration if it have changed",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `Update will assume that the access token setting haven't changed since the last initialization of the configuration, and will thus only modify (if needed) the remote address, repository owner and repository name of the configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
-		fmt.Println("update called")
+		localCfg, cfgExists, err := config.LoadLocal()
+		if err != nil {
+			log.Printf("error: could not load local configuration (%v)", err)
+			if !cfgExists {
+				log.Printf("error: the configuration doesn't seem to have been initialized yet")
+				return
+			}
+		}
+		accessToken := localCfg.AccessTokenString //Save this value
+		_, err = config.Create(&config.Local{AccessTokenString: accessToken})
+		if err != nil {
+			log.Printf("error: could not update configuration file (%v)", err)
+			return
+		}
+
+		log.Printf("info: configuration have been updated")
 	},
 }
 
 func init() {
-	// RootCmd.AddCommand(updateCmd)
+	RootCmd.AddCommand(updateCmd)
 
 	// Here you will define your flags and configuration settings.
 

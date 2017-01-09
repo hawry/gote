@@ -27,7 +27,6 @@ var logLevel string
 
 func main() {
 	colog.Register()
-	colog.SetDefaultLevel(colog.LDebug)
 	if logLevel == "production" {
 		colog.SetMinLevel(colog.LInfo)
 		colog.SetFlags(log.Ltime)
@@ -36,6 +35,10 @@ func main() {
 	}
 	if runtime.GOOS == "windows" {
 		colog.SetOutput(wincolog.Stdout())
+	} else {
+		if logLevel != "production" {
+			colog.SetDefaultLevel(colog.LDebug)
+		}
 	}
 	cmd.Execute()
 }
