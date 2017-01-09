@@ -111,7 +111,9 @@ func Remove() helpers.Issue {
 	if v, ok := issues[itr]; ok {
 		currentItr--
 		//actually remove the element from the underlying map
+		log.Printf("debug: deleting key %d, current size: %d", itr, Count())
 		delete(issues, itr)
+		log.Printf("debug: deleted key %d, new size: %d", itr, Count())
 		return v
 	}
 	return helpers.Issue{}

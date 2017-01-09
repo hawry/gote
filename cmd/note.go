@@ -82,13 +82,16 @@ func doNote(cmd *cobra.Command, args []string) {
 		if bc := buffer.Count(); bc > 0 {
 			log.Printf("warning: there are %d buffered issues. sending them now!", bc)
 			for bc > 0 {
-				if !sendIssue(buffer.Remove(), localCfg.RepoOwner, localCfg.Repository, accessToken) {
+				tmpH := buffer.Remove()
+				if !sendIssue(tmpH, localCfg.RepoOwner, localCfg.Repository, accessToken) {
 					//not really any use to keep hacking away at trying to send if one of them fails...
 					log.Printf("warning: could not send buffered issue. Aborting. All unsent issues will be sent the next time a successful transmit is made")
+					buffer.Add(tmpH) //Add the issue back to the buffer
 					break
 				}
 				bc = buffer.Count()
 			}
+			buffer.Save()
 		}
 		return
 	}
@@ -120,15 +123,17 @@ func doNote(cmd *cobra.Command, args []string) {
 		if bc := buffer.Count(); bc > 0 {
 			log.Printf("warning: there are %d buffered issues. sending them now!", bc)
 			for bc > 0 {
-				if !sendIssue(buffer.Remove(), localCfg.RepoOwner, localCfg.Repository, accessToken) {
+				tmpH := buffer.Remove()
+				if !sendIssue(tmpH, localCfg.RepoOwner, localCfg.Repository, accessToken) {
 					//not really any use to keep hacking away at trying to send if one of them fails...
 					log.Printf("warning: could not send buffered issue. Aborting. All unsent issues will be sent the next time a successful transmit is made")
+					buffer.Add(tmpH) //Add the issue back to the buffer
 					break
 				}
 				bc = buffer.Count()
 			}
+			buffer.Save()
 		}
-		log.Printf("info: ")
 	}
 }
 
