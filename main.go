@@ -27,9 +27,9 @@ var logLevel string
 
 func main() {
 	colog.Register()
+	colog.SetDefaultLevel(colog.LDebug)
 	if logLevel == "production" {
 		colog.SetMinLevel(colog.LInfo)
-		colog.SetDefaultLevel(colog.LDebug)
 	} else {
 		colog.SetFlags(log.Lshortfile)
 	}

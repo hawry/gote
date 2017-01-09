@@ -46,6 +46,8 @@ func Execute() {
 	}
 }
 
+var dryRun bool
+
 func init() {
 	cobra.OnInitialize(initConfig)
 

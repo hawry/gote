@@ -115,10 +115,16 @@ func Count() int {
 
 //Remove will return one of the issues in the buffer
 func Remove() helpers.Issue {
-	if v, ok := issues[currentItr]; ok {
+	itr := currentItr - 1
+	log.Printf("debug: remove called, len = %d, currentItr = %d (itr=%d)", Count(), currentItr, itr)
+	if v, ok := issues[itr]; ok {
 		currentItr--
+		//actually remove the element from the underlying map
+		delete(issues, itr)
+		log.Printf("found issue (%+v)", v)
 		return v
 	}
+	log.Printf("did not find issue at %d", currentItr)
 	return helpers.Issue{}
 }
 

@@ -19,19 +19,15 @@ func TestEmptyBuffer(t *testing.T) {
 
 func TestSaveBuffer(t *testing.T) {
 	setFilePath("../../.gote_buffer")
-
 	if hasBuffer() {
 		os.Remove("../../.gote_buffer")
 	}
-
 	Add(helpers.Issue{Title: "issue title", Body: fmt.Sprintf("issue body (%d)", time.Now().UnixNano())})
-
 	if b := Count(); b != 1 {
 		t.Logf("expected %d, returned %d", 1, b)
 		t.Fail()
 	}
 	save()
-
 	load()
 	if b := Count(); b != 1 {
 		t.Logf("expected %d, returned %d", 1, b)
@@ -43,10 +39,20 @@ func TestSaveBuffer(t *testing.T) {
 		t.Fail()
 	}
 	save()
-
 	load()
 	if b := Count(); b != 2 {
 		t.Logf("expected %d, returned %d", 2, b)
+		t.Fail()
+	}
+
+	Remove()
+	if b := Count(); b != 1 {
+		t.Logf("expected %d, returned %d", 1, b)
+		t.Fail()
+	}
+	Remove()
+	if b := Count(); b != 0 {
+		t.Logf("expected %d, returned %d", 0, b)
 		t.Fail()
 	}
 }

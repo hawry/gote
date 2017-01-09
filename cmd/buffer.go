@@ -35,6 +35,12 @@ var bufferCmd = &cobra.Command{
 			return
 		}
 
+		if doSendBuffer {
+			log.Printf("send buffer (buffer)")
+			doNote(nil, nil)
+			return
+		}
+
 		if rmSingleIssue >= 0 {
 			log.Printf("debug: trying to remove %d", rmSingleIssue)
 			if !buffer.Contains(rmSingleIssue) {
@@ -58,10 +64,11 @@ var bufferCmd = &cobra.Command{
 }
 
 var rmSingleIssue int
-var clearBuffer bool
+var clearBuffer, doSendBuffer bool
 
 func init() {
 	RootCmd.AddCommand(bufferCmd)
 	bufferCmd.Flags().IntVarP(&rmSingleIssue, "delete", "d", -1, "Delete the issue with given ID")
 	bufferCmd.Flags().BoolVarP(&clearBuffer, "clear", "c", false, "Removes all buffered issues")
+	bufferCmd.PersistentFlags().BoolVarP(&doSendBuffer, "send", "s", false, "Try to send all buffered issues now")
 }
