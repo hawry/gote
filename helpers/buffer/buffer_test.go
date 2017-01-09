@@ -67,4 +67,10 @@ func TestSaveBuffer(t *testing.T) {
 		t.Logf("expected %d, returned %d", 0, b)
 		t.Fail()
 	}
+	Save()
+	load()
+	if b := Count(); b != 0 {
+		t.Logf("expected %d, returned %d", 0, b)
+		t.Fail()
+	}
 }

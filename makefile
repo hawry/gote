@@ -51,6 +51,12 @@ install:
 	# ln -s `pwd`/$(OUT) /usr/local/bin/$(OUT)
 
 # 386 arm64 arm
+
+markdown:
+	cd ./docs; \
+	go run gendoc.go; \
+	cd ../
+
 release: linux windows
 
 linux:
