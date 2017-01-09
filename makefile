@@ -63,7 +63,7 @@ linux:
 	@echo "**** Creating release archive for LINUX ***** "
 	for arch in $(U_ARCHS); do \
 		# echo "Building for $$arch"; \
-		TARNAME="$(OUT)-$(PRODTAG)-linux-$$arch.tar.gz"; \
+		TARNAME="gote-$(PRODTAG)-linux-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
 		GOOS=linux GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT); \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT); \
@@ -73,7 +73,7 @@ linux:
 windows:
 	@echo "**** Creating release archive for WINDOWS ***** "
 	for arch in $(W_ARCHS); do \
-		TARNAME="$(OUT)-$(PRODTAG)-windows-$$arch.tar.gz"; \
+		TARNAME="gote-$(PRODTAG)-windows-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
 		GOOS=windows GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT).exe; \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT).exe; \
