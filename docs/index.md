@@ -3,6 +3,9 @@ This project replaces the existing [git-note][1] application for creating issues
 
 The tool relies on the use of personal access tokens with read and write access to public and private repositories where your user account have access.
 
+## Current version
+The current version is v0.1.3
+
 [documentation](gote.md)
 
 ## Download
