@@ -3,6 +3,8 @@ This project replaces the existing [git-note][1] application for creating issues
 
 The tool relies on the use of personal access tokens with read and write access to public and private repositories where your user account have access.
 
+[documentation](gote.md)
+
 ## Download
 Visit [the releases][3] page to download the source, or pre-compiled binaries for Linux and Windows.
 
@@ -63,3 +65,4 @@ You will have to supply your [personal access token][2] manually if you didn't p
 [1]: https://github.com/hawry/git-note
 [2]: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 [3]: https://github.com/Hawry/gote/releases
+[4]: gote.md
