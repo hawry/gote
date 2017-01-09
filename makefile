@@ -2,6 +2,7 @@ OUT = gote
 VERSION = `git describe --tags --long --dirty`
 LDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION)"
 PRODLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.logLevel=production"
+DOCSLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X main.createDocumentation=true"
 PRODTAG = `git describe --tags --abbrev=0`
 UNAME := $(shell uname)
 
@@ -30,10 +31,15 @@ clean:
 prod:
 	go build $(PRODLDFLAGS) -o $(OUT)
 
+documentation:
+	@echo "building with docs flag set! $(DOCSLDFLAGS)" \
+	go build $(DOCSLDFLAGS) -o $(OUT)
+
 debug:
-	@echo "build version will be $(VERSION)\n" \
-	@echo "build prod tag will be $(PRODTAG)" \
-	@echo "binary executable will be $(OUT)"
+	@echo 'build version will be $(VERSION)\n' \
+	@echo "build prod tag will be $(PRODTAG)\n" \
+	@echo "binary executable will be $(OUT)" \
+	@echo "docs ld $(DOCSLDFLAGS)"
 
 RELEASE_OUT = ./archives
 U_ARCHS = amd64 arm64 386 arm
