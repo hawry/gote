@@ -57,7 +57,7 @@ markdown:
 	go run gendoc.go; \
 	cd ../
 
-release: linux windows
+release: linux windows markdown
 
 linux:
 	@echo "**** Creating release archive for LINUX ***** "
