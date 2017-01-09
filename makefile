@@ -6,9 +6,9 @@ DOCSLDFLAGS = -ldflags "-X github.com/hawry/gote/cmd.buildVersion=$(VERSION) -X 
 PRODTAG = `git describe --tags --abbrev=0`
 UNAME := $(shell uname)
 
-ifeq ($(UNAME), MSYS_NT-10.0)
-	OUT = gote.exe
-endif
+# ifeq ($(UNAME), MSYS_NT-10.0)
+# 	OUT = gote.exe
+# endif
 
 .PHONY: all
 .SILENT:
@@ -63,7 +63,7 @@ linux:
 	@echo "**** Creating release archive for LINUX ***** "
 	for arch in $(U_ARCHS); do \
 		# echo "Building for $$arch"; \
-		TARNAME="gote-$(PRODTAG)-linux-$$arch.tar.gz"; \
+		TARNAME="$(OUT)-$(PRODTAG)-linux-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
 		GOOS=linux GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT); \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT); \
@@ -73,7 +73,7 @@ linux:
 windows:
 	@echo "**** Creating release archive for WINDOWS ***** "
 	for arch in $(W_ARCHS); do \
-		TARNAME="gote-$(PRODTAG)-windows-$$arch.tar.gz"; \
+		TARNAME="$(OUT)-$(PRODTAG)-windows-$$arch.tar.gz"; \
 		echo "Building '$$TARNAME'"; \
 		GOOS=windows GOARCH=$$arch go build $(PRODLDFLAGS) -o $(OUT).exe; \
 		tar -czvf ./$(RELEASE_OUT)/$$TARNAME ./$(OUT).exe; \
