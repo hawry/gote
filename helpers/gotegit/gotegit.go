@@ -26,7 +26,7 @@ func Provider(remoteAddress string) (GitProvider, error) {
 	case "bitbucket.org":
 		g := &Bitbucket{}
 		return g, nil
-	case "gitlab.org":
+	case "gitlab.com":
 		g := &Gitlab{}
 		return g, nil
 	default:
