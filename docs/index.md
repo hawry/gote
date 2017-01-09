@@ -3,14 +3,14 @@ This project replaces the existing [git-note][1] application for creating issues
 
 The tool relies on the use of personal access tokens with read and write access to public and private repositories where your user account have access.
 
-[documentation](gote.md)
-
 ## Download
 Visit [the releases][3] page to download the source, or pre-compiled binaries for Linux and Windows.
 
 ## Usage
 
 Make sure you are in an initialized git-repository root folder. Then run the `init`-command in the project root to bootstrap gote and answer the access question. This command will fetch as much information as it can from your `.git/config`. If you wish to enter the information manually, use the `--interactive` flag.
+
+If you need any details regarding any command, just run `gote help` or `gote help <command>`. You can also find the generated help files in [the /docs directory](docs/gote.md)
 
 ```
 /my/awesome/project$ gote init
@@ -31,6 +31,8 @@ Either clone this repository and build it from source or download any of the pre
 
 ## Configuration
 By using the `init` command, gote will create a configuration file in the current working directory, assuming it's a git repository. Gote will parse your .git/config and add remote address, username and repository name from it and add to a configuration file (default name `.gote`). Currently, gote assumes that your remote is named `origin`, otherwise gote will not be able to find the information. If you have any other remote name than origin, you can still create the configuration file manually.
+
+
 
 ### Example configuration
 ```
@@ -55,12 +57,23 @@ repository: gote
 
 You will have to supply your [personal access token][2] manually if you didn't provide it during the init process.
 
-## Upcoming features
-* [x] Using $EDITOR instead of own secondary-prompt for title and body creation of issues
-* [ ] Close/Re-open issues directly from the prompt
-* [ ] Custom labels
-* [ ] Global configuration to set default access tokens, specify editor in other means than through environment variables and also default user (for collabs and such)
-* [ ] Using environment variables instead of files for access tokens (customizable)
+### Global configuration
+To avoid using access tokens in the repository folder, a global configuration can be used with a machine wide access token setting as well as your choice of editor. The global configuration resides in `$HOME/.gote/.config` or if you are on windows `%USERPROFILE%/.gote/.config` (normally `C:\Users\<username>\`). In the global configuration, it's still possible to use environment variables.
+
+#### Examples
+**Using hard coded access token**
+```
+access_token: 123...123
+editor: vim
+```
+
+**Using environment variables**
+```
+access_token: $GOTE_ACCESS_TOKEN
+editor: $EDITOR
+```
+
+If the editor variable is empty, the default is for gote to check the environment variable `$EDITOR` first, and if not found or invalid gote will use the default (somewhat primitime) secondary prompt.
 
 [1]: https://github.com/hawry/git-note
 [2]: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
