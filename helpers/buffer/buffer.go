@@ -3,6 +3,7 @@ package buffer
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -119,7 +120,17 @@ func Remove() helpers.Issue {
 	return helpers.Issue{}
 }
 
-//HasEntry returns true if buffer contains an issue with given id, false otherwise
+//Overwrite overwrites the issue with ID id
+func Overwrite(id int, v helpers.Issue) {
+	if !Contains(id) {
+		//do not try to save at the current location since the ID is missing (we don't want any panics now do we?)
+		return
+	}
+	issues[id] = v
+	save()
+}
+
+//Contains returns true if buffer contains an issue with given id, false otherwise
 func Contains(id int) bool {
 	if _, ok := issues[id]; ok {
 		return true
@@ -127,7 +138,15 @@ func Contains(id int) bool {
 	return false
 }
 
-//ALl returns a copy of the issues in the buffer
+//Find returns a copy of the issue specified by the id, or throws an error
+func Find(id int) (helpers.Issue, error) {
+	if i, ok := issues[id]; ok {
+		return i, nil
+	}
+	return helpers.Issue{}, fmt.Errorf("issue doesn't exist in the buffer")
+}
+
+//All returns a copy of the issues in the buffer
 func All() map[int]helpers.Issue {
 	cpy := make(map[int]helpers.Issue)
 	for k, v := range issues {

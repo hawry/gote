@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -75,6 +76,48 @@ func New(editor string) Editor {
 	return e
 }
 
+//Edit returns an editor struct, and puts the given input into the temporary file that's created. The editor struct can't be manipulated
+func Edit(editor string, issue helpers.Issue) Editor {
+	e := Editor{Valid: false}
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "gote_")
+	if err != nil {
+		log.Printf("error: tempfile could not be created (%v)", err)
+		return e
+	}
+	editorPath, err := exec.LookPath(editor)
+	if err != nil {
+		log.Printf("error: %s not found in path", editor)
+		return e
+	}
+	if _, err = tmpFile.WriteString(fmt.Sprintf("%s\n", issue.Title)); err != nil {
+		log.Printf("warning: could not create modifiable issue title (%v)", err)
+	}
+	if _, err = tmpFile.WriteString(issue.Body); err != nil {
+		log.Printf("warning: could not create modifiable issue body (%v)", err)
+	}
+	//Reset the I/O offset for the parse command to be able to actually perform the parse. Otherwise it will keep reading from the current cursor location - which will cut the issue body and title in weird ways
+	_, err = tmpFile.Seek(0, 0)
+	if err != nil {
+		log.Printf("error: could not reset IO offset (%v)", err)
+	}
+	e.File = tmpFile
+	cmd := exec.Command(editorPath, e.File.Name())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Start()
+	if err != nil {
+		log.Printf("error: could not run command (%v)", err)
+		return e
+	}
+	err = cmd.Wait()
+	if err != nil {
+		log.Printf("warning: empty response or something went wrong (%v)", err)
+	}
+	e.parse()
+	return e
+}
+
 func (e *Editor) parse() {
 	s, err := ioutil.ReadAll(e.File)
 	if err != nil {
@@ -83,6 +126,8 @@ func (e *Editor) parse() {
 	}
 	sval := string(s)
 	sval = strings.TrimSpace(sval)
+
+	log.Printf("debug: entire file '%v'", sval)
 
 	r := regexp.MustCompile(titlePattern)
 	result := helpers.ToMap(r.FindStringSubmatch(sval), r.SubexpNames())

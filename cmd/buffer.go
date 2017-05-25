@@ -18,7 +18,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hawry/gote/config"
 	"github.com/hawry/gote/helpers/buffer"
+	"github.com/hawry/gote/helpers/editor"
 	"github.com/spf13/cobra"
 )
 
@@ -29,6 +31,14 @@ var bufferCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		globalCfg, useGlobal, err := config.LoadGlobal()
+		if useGlobal {
+			if err != nil {
+				log.Printf("error: something went wrong trying to parse the global configuration (%v)", err)
+				return
+			}
+		}
+
 		if clearBuffer {
 			buffer.Empty()
 			log.Printf("info: removed all entries from buffer")
@@ -38,6 +48,32 @@ var bufferCmd = &cobra.Command{
 		if doSendBuffer {
 			doNote(nil, nil)
 			return
+		}
+
+		if editIssue >= 0 {
+			log.Printf("debug: trying to edit %d", editIssue)
+			if !buffer.Contains(editIssue) {
+				log.Printf("warning: the issue ID you provided doesn't exist in the buffer")
+				return
+			}
+			if b, ed := editor.UseEditor(globalCfg); b {
+				issue, err := buffer.Find(editIssue)
+				if err != nil {
+					log.Printf("error: could not open issue for modification (%v)", err)
+					return
+				}
+				log.Printf("debug: editing issue: %v", issue)
+				ed := editor.Edit(ed, issue)
+				if !ed.Valid {
+					log.Printf("warning: empty issue. no changes were saved")
+					return
+				}
+				buffer.Overwrite(editIssue, *ed.Issue)
+				log.Printf("success: edited issue '%s'", ed.Title)
+			} else {
+				log.Printf("error: you must specify an editor to use to modify buffered issues. no changes were saved")
+				return
+			}
 		}
 
 		if rmSingleIssue >= 0 {
@@ -62,11 +98,12 @@ var bufferCmd = &cobra.Command{
 	},
 }
 
-var rmSingleIssue int
+var rmSingleIssue, editIssue int
 var clearBuffer, doSendBuffer bool
 
 func init() {
 	RootCmd.AddCommand(bufferCmd)
+	bufferCmd.Flags().IntVarP(&editIssue, "edit", "e", -1, "Edit the issue with given ID (requires an editor)")
 	bufferCmd.Flags().IntVarP(&rmSingleIssue, "delete", "d", -1, "Delete the issue with given ID")
 	bufferCmd.Flags().BoolVarP(&clearBuffer, "clear", "c", false, "Removes all buffered issues")
 	bufferCmd.PersistentFlags().BoolVarP(&doSendBuffer, "send", "s", false, "Try to send all buffered issues now")
