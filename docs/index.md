@@ -10,7 +10,7 @@ Visit [the releases][3] page to download the source, or pre-compiled binaries fo
 
 Make sure you are in an initialized git-repository root folder. Then run the `init`-command in the project root to bootstrap gote and answer the access question. This command will fetch as much information as it can from your `.git/config`. If you wish to enter the information manually, use the `--interactive` flag.
 
-If you need any details regarding any command, just run `gote help` or `gote help <command>`. You can also find the generated help files in [the /docs directory](docs/gote.md)
+If you need any details regarding any command, just run `gote help` or `gote help <command>`. You can also find the generated help files in [the /docs directory](gote)
 
 ```
 /my/awesome/project$ gote init
