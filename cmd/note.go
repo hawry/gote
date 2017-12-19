@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -159,7 +160,7 @@ func sendIssue(goteIssue helpers.Issue, repoOwner, repoName, accessToken string)
 		// log.Printf("debug: access token is: %s (using global %t)", accessToken, useGlobal)
 		return true
 	}
-	_, response, err := cli.Issues.Create(repoOwner, repoName, newIssue)
+	_, response, err := cli.Issues.Create(context.Background(), repoOwner, repoName, newIssue)
 	if err != nil {
 		log.Printf("error: could not create issue for %s (%v)", fmt.Sprintf("%s/%s", repoOwner, repoName), err)
 		//add to buffer
